@@ -10,40 +10,18 @@
     <script src="https://sapui5.hana.ondemand.com/resources/sap-ui-core.js"></script>
     <style>
     form {
-        padding: 10px;
+        padding: 20px;
         width: 60%;
         vertical-align: middle;
     }
     </style>
     <script>
+    const USERNAME = "KUMARA";
+    const PASSWORD = "msg12345";
+
+    var model = new sap.ui.model.odata.v2.ODataModel("http://mgss22a.aws.msg.de:8000/sap/opu/odata/sap/ZSWTEST_CLAIMS_SRV/", true, USERNAME, PASSWORD);
+
     function callSubmit() {
-        // debugger;
-        // var csrf_token = $('meta[name="csrf-token"]').attr('content');
-        // $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-        //     if (options.type.toLowerCase() === "post") {
-        //         // initialize `data` to empty string if it does not exist
-        //         options.data = options.data || "";
-
-        //         // add leading ampersand if `data` is non-empty
-        //         options.data += options.data ? "&" : "";
-
-        //         // add _token entry
-        //         options.data += "_token=" + encodeURIComponent(csrf_token);
-        //     }
-        // });
-
-
-        // var userID = $("#userID").val();
-        // $.post('/admin/users/delete-user', {id:userID}, function() {
-        // // User deleted
-        // });
-
-        // hr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
-        const USERNAME = "KUMARA";
-        const PASSWORD = "msg12345";
-
-        var model = new sap.ui.model.odata.v2.ODataModel("http://mgss22a.aws.msg.de:8000/sap/opu/odata/sap/ZSWTEST_CLAIMS_SRV/", true, USERNAME, PASSWORD);
-
 
         var vData = {
             Amount: $("#idAmount").val(),
@@ -66,35 +44,21 @@
                 console.log("Claim could not be created");
             }
         });
-
-        // var oHeaders = {
-        //     'X-Requested-With': 'X',
-        //     'Accept': 'application/json',
-        // };
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: "http://KUMARA:msg12345@mgss22a.aws.msg.de:8000/sap/opu/odata/sap/ZSWTEST_CLAIMS_SRV/ClaimSet",
-        //     headers: {
-        //         "Authorization": "Basic " + btoa(USERNAME + ":" + PASSWORD)
-        //     },
-        //     data: { Amount: "120", Waers: "USD" },
-        //     success: function(data, status) {
-        //         console.log(data);
-        //     },
-        //     error: function(status) {
-        //         console.log(status);
-        //     },
-        //     dataType: "json"
-        // });
-
     }
 
-    $("#contactForm").submit(function(event) {
-        // cancels the form submission
-        event.preventDefault();
-        callSubmit();
-    });
+    function populateList() {
+        model.read("/ClaimSet", {
+            success: function(oData, oResponse) {
+                console.log(oData);
+                oData.results.forEach(function(item, index) {
+                    console.log(item);
+                    // $("#idList").append("<td>" + item.Clmno + "</td>" + item.Amount + "</td>" + "<td>" + item.Currency + "</td>");
+                    $("#idTable").append("<tr><td>" + item.Clmno + "</td>" + "<td>" + item.Amount + "</td>" + "<td>" + item.Waers + "</td></tr>");
+                })
+
+            }
+        });
+    }
     </script>
 </head>
 
@@ -122,6 +86,26 @@
             </div>
         </div>
     </form>
+    <div id="idList">
+        <table class="table" id="idTable">
+            <thead>
+                <tr>
+                    <th scope="col">Claim No</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Currency</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <script>
+    // Ready
+    $(document).ready(function() {
+        console.log("ready!");
+        populateList();
+    });
+    </script>
 </body>
 
 </html>
